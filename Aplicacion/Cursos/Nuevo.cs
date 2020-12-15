@@ -43,7 +43,7 @@ namespace Aplicacion.Cursos
                 curso.Descripcion = request.Descripcion;
                 curso.FechaPublicacion = request.FechaPublicacion;
 
-                context.Curso.Add(curso);
+                context.Cursos.Add(curso);
                 var valor = await context.SaveChangesAsync();
                 if(valor>0)
                 {

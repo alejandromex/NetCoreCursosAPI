@@ -23,7 +23,7 @@ namespace WebAPI.Controllers
        
         [HttpGet]
         public IEnumerable<Curso> Get(){
-            return context.Curso.ToList();
+            return context.Cursos.ToList();
         }
 
     }

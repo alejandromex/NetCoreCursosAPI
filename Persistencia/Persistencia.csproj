@@ -10,4 +10,7 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
+    <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+  </ItemGroup>
 </Project>

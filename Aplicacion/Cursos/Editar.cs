@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Persistencia;
 using FluentValidation;
+using Aplicacion.ManejadorError;
 
 namespace Aplicacion.Cursos
 {
@@ -36,10 +37,10 @@ namespace Aplicacion.Cursos
             }
             public async Task<Unit> Handle(Ejecuta request, CancellationToken cancellationToken)
             {
-                var curso = await context.Curso.FindAsync(request.CursoId);
+                var curso = await context.Cursos.FindAsync(request.CursoId);
                 if(curso == null)
                 {
-                    throw new Exception("El Curso buscado no existe");
+                    throw new ManejadorExcepcion(System.Net.HttpStatusCode.NotFound, new {curso = "No se encontro el curso a editar"});
                 }
 
                 curso.Titulo = request.Titulo ?? curso.Titulo;

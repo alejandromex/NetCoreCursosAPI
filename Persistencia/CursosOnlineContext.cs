@@ -19,8 +19,8 @@ namespace Persistencia
         }
 
         public DbSet<Comentario> Comentarios{get;set;}
-        public DbSet<Curso> Curso{get;set;}
-        public DbSet<CursoInstructor> CursoInstructor{get;set;}
+        public DbSet<Curso> Cursos{get;set;}
+        public DbSet<CursoInstructor> CursoInstructors{get;set;}
         public DbSet<Instructor> Instructores{get;set;}
         public DbSet<Precio> Precios{get;set;}
 

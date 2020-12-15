@@ -66,3 +66,4 @@ D:\ProyectoCore\WebAPI\bin\Debug\net5.0\MediatR.Extensions.Microsoft.DependencyI
 D:\ProyectoCore\WebAPI\bin\Debug\net5.0\FluentValidation.dll
 D:\ProyectoCore\WebAPI\bin\Debug\net5.0\FluentValidation.AspNetCore.dll
 D:\ProyectoCore\WebAPI\bin\Debug\net5.0\FluentValidation.DependencyInjectionExtensions.dll
+D:\ProyectoCore\WebAPI\bin\Debug\net5.0\Newtonsoft.Json.dll

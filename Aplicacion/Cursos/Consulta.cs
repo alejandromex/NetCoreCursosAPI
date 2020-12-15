@@ -25,7 +25,7 @@ namespace Aplicacion.Cursos
             
             public async Task<List<Curso>> Handle(ListaCursos request, CancellationToken cancellationToken)
             {
-                var cursos = await this.context.Curso.ToListAsync();
+                var cursos = await this.context.Cursos.ToListAsync();
                 return cursos;
             }
         }
