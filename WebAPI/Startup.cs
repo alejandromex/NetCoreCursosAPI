@@ -18,6 +18,20 @@ using MediatR;
 using Aplicacion.Cursos;
 using FluentValidation.AspNetCore;
 using WebAPI.Middleware;
+using Dominio;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.AspNetCore.Authentication;
+using Aplicacion.Contratos;
+using Seguridad;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
+using AutoMapper;
+using Persistencia.DapperConexion;
+using Persistencia.DapperConexion.Instructor;
 
 namespace WebAPI
 {
@@ -37,11 +51,41 @@ namespace WebAPI
                 opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             });
 
+            services.AddOptions();
+            services.Configure<ConexionConfiguracion>(Configuration.GetSection("ConnectionStrings"));
+
             services.AddMediatR(typeof(Consulta.Manejador).Assembly);
-            // services.AddMediatR(typeof(ConsultaPorId.Manejador).Assembly);
-            services.AddMvc()
+            services.AddMvc(opt => {
+                var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+                opt.Filters.Add(new AuthorizeFilter(policy));
+            })
                 .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Nuevo>());
-            // services.AddControllers().AddFluentValidation(cfg => cfg.RegisterValidatorsFromAssemblyContaining<Nuevo>());
+            
+            var builder = services.AddIdentityCore<Usuario>();
+            var identityBuilder = new IdentityBuilder(builder.UserType, builder.Services);
+            identityBuilder.AddEntityFrameworkStores<CursosOnlineContext>();
+            identityBuilder.AddSignInManager<SignInManager<Usuario>>();
+            services.TryAddSingleton<ISystemClock, SystemClock>();
+
+            // Configuramos La authorizacion (Seguridad)
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("Mi palabra secreta"));
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>{
+                opt.TokenValidationParameters = new TokenValidationParameters{
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = key,
+                    ValidateAudience = false,
+                    ValidateIssuer = false
+                };
+            });
+
+            
+            services.AddScoped<IJwtGenerador, JwtGenerador>();
+            services.AddScoped<IUsuarioSesion, UsuarioSesion>();
+            services.AddAutoMapper(typeof(Consulta.Manejador));
+
+            //DAPPER
+            services.AddTransient<IfactoryConnection, FactoryConnection>();
+            services.AddScoped<IInstructor, InstructorRepository>();
             
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -62,6 +106,8 @@ namespace WebAPI
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebAPI v1"));
             }
+
+            app.UseAuthentication();
 
             app.UseHttpsRedirection();
 

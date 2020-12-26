@@ -6,14 +6,35 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Persistencia;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using Dominio;
 
 namespace WebAPI
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public  static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            var hostserver = CreateHostBuilder(args).Build();
+            using(var ambiente = hostserver.Services.CreateScope())
+            {
+                var services = ambiente.ServiceProvider;
+                try{
+                    var userManager = services.GetRequiredService<UserManager<Usuario>>();
+                    var context = services.GetRequiredService<CursosOnlineContext>();
+                    context.Database.Migrate();
+                     DataPrueba.InsertarData(context, userManager).Wait();
+
+                }catch(Exception ex)
+                {
+                    var loggin = services.GetRequiredService<ILogger<Program>>();
+                    loggin.LogError(ex, "Ocurrio un error en la migracion");
+                }
+            }
+            hostserver.Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

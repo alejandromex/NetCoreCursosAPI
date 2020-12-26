@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Persistencia;
 using System.ComponentModel.DataAnnotations;
 using FluentValidation;
+using System.Collections.Generic;
 
 namespace Aplicacion.Cursos
 {
@@ -15,7 +16,11 @@ namespace Aplicacion.Cursos
         {
             public string Titulo{get;set;}
             public string Descripcion{get;set;}
+            public decimal Precio{get;set;}
+            public decimal Promocion{get;set;}
             public DateTime? FechaPublicacion{get;set;}
+            public List<Guid> ListaInstructor {get;set;}
+
         }
 
         //Logica de validacion
@@ -38,12 +43,38 @@ namespace Aplicacion.Cursos
             }
             public async Task<Unit> Handle(Ejecuta request, CancellationToken cancellationToken)
             {
+                Guid _cursoId = Guid.NewGuid();
                 var curso = new Curso();
                 curso.Titulo = request.Titulo;
                 curso.Descripcion = request.Descripcion;
                 curso.FechaPublicacion = request.FechaPublicacion;
+                curso.CursoId = _cursoId;
+
+                var precioEntidad = new Precio{
+                    CursoId = _cursoId,
+                    PrecioActual = request.Precio,
+                    Promocion = request.Promocion,
+                    PrecioId = Guid.NewGuid()
+                };
+
+                context.Precios.Add(precioEntidad);
 
                 context.Cursos.Add(curso);
+
+                if(request.ListaInstructor != null)
+                {
+                    CursoInstructor cursoInstructor = null;
+                    foreach(var id in request.ListaInstructor)
+                    {
+                        cursoInstructor = new CursoInstructor{
+                            CursoId = curso.CursoId,
+                            InstructorId = id
+                        };
+
+                        context.CursoInstructors.Add(cursoInstructor);
+                    }
+                }
+
                 var valor = await context.SaveChangesAsync();
                 if(valor>0)
                 {

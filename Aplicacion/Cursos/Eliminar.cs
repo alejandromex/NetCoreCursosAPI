@@ -5,6 +5,8 @@ using Persistencia;
 using System;
 using Aplicacion.ManejadorError;
 using System.Net;
+using Dominio;
+using System.Linq;
 
 namespace Aplicacion.Cursos
 {
@@ -12,7 +14,7 @@ namespace Aplicacion.Cursos
     {
         public class Ejecuta : IRequest
         {
-            public int Id{get;set;}
+            public Guid Id{get;set;}
         }
 
         public class Manejador : IRequestHandler<Ejecuta>
@@ -25,6 +27,27 @@ namespace Aplicacion.Cursos
             }
             public async Task<Unit> Handle(Ejecuta request, CancellationToken cancellationToken)
             {
+                var instructoresDB = context.CursoInstructors.Where(x => x.CursoId == request.Id);
+
+                foreach(var instructor in instructoresDB)
+                {
+                    context.CursoInstructors.Remove(instructor);
+                }
+
+                var comentariosDB = context.Comentarios.Where(x => x.CursoId == request.Id);
+                
+                foreach(var comentario in comentariosDB)
+                {
+                    context.Comentarios.Remove(comentario);
+                }
+
+                var precioDB = context.Precios.Where(x => x.CursoId == request.Id).FirstOrDefault();
+
+                if(precioDB != null)
+                {
+                    context.Precios.Remove(precioDB);
+                }
+
                 var curso = await context.Cursos.FindAsync(request.Id);
                 if(curso == null)
                 {

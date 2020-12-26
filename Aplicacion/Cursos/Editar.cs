@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 using Persistencia;
 using FluentValidation;
 using Aplicacion.ManejadorError;
+using System.Collections.Generic;
+using System.Linq;
+using Dominio;
 
 namespace Aplicacion.Cursos
 {
@@ -12,10 +15,13 @@ namespace Aplicacion.Cursos
     {
         public class Ejecuta : IRequest
         {
-            public int CursoId{get;set;}
+            public Guid CursoId{get;set;}
             public string Titulo{get;set;}
             public string Descripcion{get;set;}
             public DateTime? FechaPublicacion{get;set;}
+            public List<Guid> ListaInstructor{get;set;}
+            public decimal? Precio{get;set;}
+            public decimal? Promocion {get;set;}
         }
         
         public class EjecutaValidacion : AbstractValidator<Ejecuta>
@@ -46,7 +52,55 @@ namespace Aplicacion.Cursos
                 curso.Titulo = request.Titulo ?? curso.Titulo;
                 curso.Descripcion = request.Descripcion ?? curso.Descripcion;
                 curso.FechaPublicacion = request.FechaPublicacion ?? curso.FechaPublicacion;
+
+
+                // Actualizar precio de curso
+
+                var precioEntidad = context.Precios.Where(x => x.CursoId == curso.CursoId).FirstOrDefault();
+                if(precioEntidad != null)
+                {
+                    precioEntidad.Promocion = request.Promocion ?? precioEntidad.Promocion;
+                    precioEntidad.PrecioActual = request.Precio ?? precioEntidad.PrecioActual;
+                }
+                else{
+                    precioEntidad = new Precio{
+                        PrecioId = Guid.NewGuid(),
+                        PrecioActual = request.Precio ?? 0,
+                        Promocion = request.Promocion ?? 0,
+                        CursoId = curso.CursoId,
+                    };
+
+                    await context.Precios.AddAsync(precioEntidad);
+                }
+
+                // Fin
+
                 
+                //Validar si llegan instructores y actualizarlos
+                if(request.ListaInstructor != null)
+                {
+                    if(request.ListaInstructor.Count > 0)
+                    {
+                        // Eliminamos los instructores actuales del curso
+                        var InstructoresDB = context.CursoInstructors.Where(x => x.CursoId == request.CursoId).ToList();
+                        foreach(var instructorEliminar in InstructoresDB)
+                        {
+                            context.CursoInstructors.Remove(instructorEliminar);
+                        }
+                        // FIN ///////
+
+                        
+                        foreach(var id in request.ListaInstructor)
+                        {
+                            var nuevoInstructor = new CursoInstructor{
+                                CursoId = request.CursoId,
+                                InstructorId = id
+                            };
+                            context.CursoInstructors.Add(nuevoInstructor);
+                        }
+                    }
+                }
+
                 var valor = await context.SaveChangesAsync();
                 if(valor>0)
                 {

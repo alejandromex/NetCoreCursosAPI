@@ -4,27 +4,25 @@ using System.Collections.Generic;
 using Dominio;
 using System.Threading.Tasks;
 using Aplicacion.Cursos;
+using Microsoft.AspNetCore.Authorization;
+using System;
 
 namespace WebAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")] // End point -> Ruta -> http://localhost:5001/Cursos
-    public class CursosController : ControllerBase
+    public class CursosController : MiControllerBase
     {
-        private readonly IMediator mediator;
-        public CursosController(IMediator mediator)
-        {
-            this.mediator = mediator;
-        }
-
+        
         [HttpGet]
-        public async Task<ActionResult<List<Curso>>> Get()
+
+        public async Task<ActionResult<List<CursoDTO>>> Get()
         {
             return await mediator.Send(new Consulta.ListaCursos());
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Curso>> Get(int id)
+        public async Task<ActionResult<CursoDTO>> Get(Guid id)
         {
             return await mediator.Send(new ConsultaPorId.CursoUnico{Id = id});
         }
@@ -36,14 +34,14 @@ namespace WebAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<Unit>> Edit(int id, Editar.Ejecuta data)
+        public async Task<ActionResult<Unit>> Edit(Guid id, Editar.Ejecuta data)
         {
             data.CursoId = id;
             return await mediator.Send(data);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Unit>> Delete(int id)
+        public async Task<ActionResult<Unit>> Delete(Guid id)
         {
             return await mediator.Send(new Eliminar.Ejecuta{Id = id});
         }

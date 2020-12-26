@@ -67,3 +67,9 @@ D:\ProyectoCore\WebAPI\bin\Debug\net5.0\FluentValidation.dll
 D:\ProyectoCore\WebAPI\bin\Debug\net5.0\FluentValidation.AspNetCore.dll
 D:\ProyectoCore\WebAPI\bin\Debug\net5.0\FluentValidation.DependencyInjectionExtensions.dll
 D:\ProyectoCore\WebAPI\bin\Debug\net5.0\Newtonsoft.Json.dll
+D:\ProyectoCore\WebAPI\bin\Debug\net5.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
+D:\ProyectoCore\WebAPI\bin\Debug\net5.0\Seguridad.dll
+D:\ProyectoCore\WebAPI\bin\Debug\net5.0\Seguridad.pdb
+D:\ProyectoCore\WebApi\bin\Debug\net5.0\AutoMapper.dll
+D:\ProyectoCore\WebApi\bin\Debug\net5.0\AutoMapper.Extensions.Microsoft.DependencyInjection.dll
+D:\ProyectoCore\WebAPI\bin\Debug\net5.0\Dapper.dll
