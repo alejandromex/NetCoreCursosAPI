@@ -41,6 +41,8 @@ namespace Aplicacion.Instructores
                 instructor.Nombre = request.Nombre;
                 instructor.Apellidos = request.Apellidos;
                 instructor.Grado = request.Grado;
+
+
                 var resultado = await _instructorRepository.Nuevo(instructor);
                 if(resultado > 0)
                 {

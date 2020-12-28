@@ -49,6 +49,7 @@ namespace Aplicacion.Cursos
                 curso.Descripcion = request.Descripcion;
                 curso.FechaPublicacion = request.FechaPublicacion;
                 curso.CursoId = _cursoId;
+                curso.FechaCreacion = DateTime.UtcNow;
 
                 var precioEntidad = new Precio{
                     CursoId = _cursoId,

@@ -47,6 +47,8 @@ namespace Aplicacion.Comentarios
                 comentario.Puntaje = request.Puntaje;
                 comentario.CursoId = request.CursoId;
                 comentario.ComentarioId = Guid.NewGuid();
+                comentario.FechaCreacion = DateTime.UtcNow;
+
 
                 _context.Comentarios.Add(comentario);
 

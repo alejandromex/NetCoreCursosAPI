@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Aplicacion.Cursos;
 using Microsoft.AspNetCore.Authorization;
 using System;
+using Persistencia.DapperConexion.Paginacion;
 
 namespace WebAPI.Controllers
 {
@@ -44,6 +45,12 @@ namespace WebAPI.Controllers
         public async Task<ActionResult<Unit>> Delete(Guid id)
         {
             return await mediator.Send(new Eliminar.Ejecuta{Id = id});
+        }
+
+        [HttpPost("report")]
+        public async Task<ActionResult<PaginacionModel>> Report(PaginacionCurso.Ejecuta data)
+        {
+            return await mediator.Send(data);
         }
 
     }
