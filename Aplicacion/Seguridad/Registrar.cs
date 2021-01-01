@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Aplicacion.ManejadorError;
 using System.Net;
 using FluentValidation;
+using System.Collections.Generic;
 
 namespace Aplicacion.Seguridad
 {
@@ -17,8 +18,7 @@ namespace Aplicacion.Seguridad
     {
         public class Ejecuta : IRequest<UsuarioData>
         {
-            public string Nombre {get;set;}
-            public string Apellidos{get;set;}
+            public string NombreCompleto {get;set;}
             public string Email{get;set;}
             public string Password{get;set;}
             public string Username{get;set;}
@@ -28,8 +28,7 @@ namespace Aplicacion.Seguridad
 
             public EjecutaValidador()
             {
-                RuleFor(x => x.Nombre).NotEmpty();
-                RuleFor(x => x.Apellidos).NotEmpty();
+                RuleFor(x => x.NombreCompleto).NotEmpty();
                 RuleFor(x => x.Email).NotEmpty();
                 RuleFor(x => x.Password).NotEmpty();
                 RuleFor(x => x.Username).NotEmpty();
@@ -63,15 +62,16 @@ namespace Aplicacion.Seguridad
 
                 var usuario = new Usuario();
                 usuario.Email = request.Email;
-                usuario.NombreCompleto = request.Nombre + " " + request.Apellidos;
+                usuario.NombreCompleto = request.NombreCompleto;
                 usuario.UserName = request.Username;    
+
 
                 var resultado = await userManager.CreateAsync(usuario, request.Password);
                 if(resultado.Succeeded)
                 {
                     return new UsuarioData{
                         NombreCompleto = usuario.NombreCompleto,
-                        Token = jwtGenerador.CrearToken(usuario),
+                        Token = jwtGenerador.CrearToken(usuario, null),
                         Username = usuario.UserName,
                         Email = usuario.Email
                     };

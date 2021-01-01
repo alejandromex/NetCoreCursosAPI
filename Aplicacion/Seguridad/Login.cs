@@ -44,6 +44,16 @@ namespace Aplicacion.Seguridad
             public async Task<UsuarioData> Handle(Ejecuta request, CancellationToken cancellationToken)
             {
                 var usuario = await userManager.FindByEmailAsync(request.Email);
+                var listRoles = await userManager.GetRolesAsync(usuario);
+                List<string> roles = new List<string>();
+                if(listRoles != null)
+                {
+                    foreach(string rol in listRoles)
+                    {
+                        roles.Add(rol);
+                    }
+                }
+
                 if(usuario == null)
                 {
                     throw new ManejadorExcepcion(HttpStatusCode.Unauthorized, new {usuario = "Email no localizado"});
@@ -55,7 +65,7 @@ namespace Aplicacion.Seguridad
                     return new UsuarioData{
                         NombreCompleto = usuario.NombreCompleto,
                         Email = usuario.Email,
-                        Token = jwtGenerador.CrearToken(usuario),
+                        Token = jwtGenerador.CrearToken(usuario,roles),
                         Username = usuario.UserName,
                         Imagen = null
                     };

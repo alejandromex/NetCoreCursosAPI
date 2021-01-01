@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using Microsoft.AspNetCore.Identity;
 using Aplicacion.Contratos;
+using System.Collections.Generic;
 
 namespace Aplicacion.Seguridad
 {
@@ -29,10 +30,12 @@ namespace Aplicacion.Seguridad
             public async Task<UsuarioData> Handle(Ejecutar request, CancellationToken cancellationToken)
             {
                 var usuario = await userManager.FindByNameAsync(usuarioSesion.ObtenerUsuarioSesion());
+                var listRoles = await userManager.GetRolesAsync(usuario);
+                List<string> roles = new List<string>(listRoles);
                 UsuarioData usuarioD = new UsuarioData();
                 usuarioD.NombreCompleto = usuario.NombreCompleto;
                 usuarioD.Username = usuario.UserName;
-                usuarioD.Token = jwtGenerador.CrearToken(usuario);
+                usuarioD.Token = jwtGenerador.CrearToken(usuario,roles);
                 usuarioD.Imagen = null;
                 usuarioD.Email = usuario.Email;
                 return usuarioD; 

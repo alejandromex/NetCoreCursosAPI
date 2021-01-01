@@ -48,9 +48,19 @@ namespace WebAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
+            services.AddCors(o => o.AddPolicy("cors", buider =>
+            {
+                buider.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+            }));
+
+
             services.AddDbContext<CursosOnlineContext>(opt =>{
                 opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             });
+            
+
+            
 
             services.AddOptions();
             services.Configure<ConexionConfiguracion>(Configuration.GetSection("ConnectionStrings"));
@@ -61,25 +71,23 @@ namespace WebAPI
                 opt.Filters.Add(new AuthorizeFilter(policy));
             })
                 .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Nuevo>());
+
+
+
             
             var builder = services.AddIdentityCore<Usuario>();
             var identityBuilder = new IdentityBuilder(builder.UserType, builder.Services);
+
+
+            identityBuilder.AddRoles<IdentityRole>();
+            identityBuilder.AddClaimsPrincipalFactory<UserClaimsPrincipalFactory<Usuario,IdentityRole>>();
+
             identityBuilder.AddEntityFrameworkStores<CursosOnlineContext>();
             identityBuilder.AddSignInManager<SignInManager<Usuario>>();
             services.TryAddSingleton<ISystemClock, SystemClock>();
 
             // Configuramos La authorizacion (Seguridad)
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("Mi palabra secreta"));
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>{
-                opt.TokenValidationParameters = new TokenValidationParameters{
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = key,
-                    ValidateAudience = false,
-                    ValidateIssuer = false
-                };
-            });
 
-            
             services.AddScoped<IJwtGenerador, JwtGenerador>();
             services.AddScoped<IUsuarioSesion, UsuarioSesion>();
             services.AddAutoMapper(typeof(Consulta.Manejador));
@@ -97,11 +105,24 @@ namespace WebAPI
                 c.CustomSchemaIds(c => c.FullName);
 
             });
+
+            
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("Mi palabra secreta"));
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>{
+                opt.TokenValidationParameters = new TokenValidationParameters{
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = key,
+                    ValidateAudience = false,
+                    ValidateIssuer = false
+                };
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+
+            app.UseCors("cors");
 
             app.UseMiddleware<ManejadorErrorMiddleware>();
 

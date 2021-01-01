@@ -10,11 +10,9 @@ using Persistencia.DapperConexion.Paginacion;
 
 namespace WebAPI.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")] // End point -> Ruta -> http://localhost:5001/Cursos
     public class CursosController : MiControllerBase
     {
-        
+        [Authorize(Roles="Admin")]
         [HttpGet]
 
         public async Task<ActionResult<List<CursoDTO>>> Get()
